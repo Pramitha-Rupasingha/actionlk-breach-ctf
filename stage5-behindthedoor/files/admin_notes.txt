@@ -1,0 +1,2 @@
+Internal note: vault_backup.zip.enc is the encrypted export the fraud team pulled before the outage.
+Partial credit flag: ACTIONLK{idor_1000_admin_notes}

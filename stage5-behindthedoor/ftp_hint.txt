@@ -1,0 +1,7 @@
+Reminder to self:
+
+The document portal is up at http://<this-host>:8005/files?user_id=1042
+(that's my own ID — nothing sensitive in there).
+
+Finance/admin backups apparently use a much older ID range from before the
+migration. Meant to ask IT whether the portal actually checks who's asking.
