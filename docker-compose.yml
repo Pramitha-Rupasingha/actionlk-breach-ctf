@@ -1,0 +1,116 @@
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------
+  # CTFd control layer — the ONLY service players load in a browser.
+  # Handles auth, scoreboard, challenge listing, and flag validation.
+  # ---------------------------------------------------------------------
+  ctfd:
+    image: ctfd/ctfd:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"          # put an nginx/certbot reverse proxy in front
+                              # of this for real HTTPS in production use
+    environment:
+      - UPLOAD_FOLDER=/var/uploads
+      - DATABASE_URL=mysql+pymysql://ctfd:${CTFD_DB_PASSWORD:-ctfd_db_pw}@ctfd_db/ctfd
+      - REDIS_URL=redis://ctfd_cache:6379
+      - WORKERS=1
+      - SECRET_KEY=${CTFD_SECRET_KEY:-change_me_before_prod}
+    volumes:
+      - ctfd_uploads:/var/uploads
+    depends_on:
+      - ctfd_db
+      - ctfd_cache
+    networks:
+      - ctfd_net
+
+  ctfd_db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${CTFD_DB_ROOT_PASSWORD:-ctfd_root_pw}
+      - MYSQL_USER=ctfd
+      - MYSQL_PASSWORD=${CTFD_DB_PASSWORD:-ctfd_db_pw}
+      - MYSQL_DATABASE=ctfd
+    command: [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+        "--wait_timeout=28800",
+        "--log-warnings=0",
+      ]
+    volumes:
+      - ctfd_db_data:/var/lib/mysql
+    networks:
+      - ctfd_net
+
+  ctfd_cache:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ctfd_cache_data:/data
+    networks:
+      - ctfd_net
+
+  # ---------------------------------------------------------------------
+  # STAGE 3 — "Front Door" (Web / SQL injection)
+  # Only its HTTP port is published; MySQL never leaves the container.
+  # ---------------------------------------------------------------------
+  stage3-frontdoor:
+    build: ./stage3-frontdoor
+    restart: unless-stopped
+    ports:
+      - "8003:80"
+    environment:
+      - DB_APP_PASSWORD=${STAGE3_DB_APP_PASSWORD}
+      - DB_ADMIN_PASSWORD=${STAGE3_ADMIN_DB_PASSWORD}
+      - STAGE3_FLAG=${STAGE3_FLAG}
+    networks:
+      - ctf_isolated
+
+  # ---------------------------------------------------------------------
+  # STAGE 5 — "Behind the Door" (Web IDOR + FTP)
+  # Publishes HTTP + FTP control/passive ports directly (FTP passive mode
+  # needs a routable IP, so it is not proxied through anything else).
+  # ---------------------------------------------------------------------
+  stage5-behindthedoor:
+    build: ./stage5-behindthedoor
+    restart: unless-stopped
+    ports:
+      - "8005:80"
+      - "21:21"
+      - "21100-21110:21100-21110"
+    environment:
+      - FTP_USER=${STAGE4_FTP_USER}
+      - FTP_PASSWORD=${STAGE4_FTP_PASSWORD}
+      - PASV_ADDRESS=${PASV_ADDRESS}
+    networks:
+      - ctf_isolated
+
+networks:
+  # CTFd's own backend network — never reachable by players directly.
+  ctfd_net:
+    driver: bridge
+
+  # Challenge network. `enable_icc: "false"` disables container-to-container
+  # traffic on this bridge (Stage 3 can never reach Stage 5 or vice versa).
+  # NOTE: this network deliberately does NOT set `internal: true` — Docker
+  # drops published `ports:` on fully internal networks, which would also
+  # block players from reaching Stage 3/5. "No internet egress" for this
+  # subnet is instead enforced with one DOCKER-USER iptables rule on the
+  # host (see README "Host setup" step 4) — that blocks NEW outbound
+  # connections from 172.20.0.0/24 while still allowing the established,
+  # player-initiated connections that `ports:` DNATs in.
+  ctf_isolated:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  ctfd_db_data:
+  ctfd_cache_data:
+  ctfd_uploads:
