@@ -1,0 +1,195 @@
+/* =============================================================================
+   ActionLK Breach — Terminal / Red-Team CTFd Theme
+   Paste this whole block (including the <style> tags) into:
+   Admin Panel → Config → Theme tab → "Theme Header" box → Update
+   ========================================================================== */
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --void:          #050a06;
+  --surface:       #0d150f;
+  --surface-raised:#142019;
+  --border-dim:    #163D24;
+  --border-mid:    #1f7a3d;
+  --green:         #39FF6A;
+  --green-mid:     #1FAE54;
+  --red-alert:     #FF4D4D;
+  --text-main:     #D7FFE0;
+  --text-muted:    #5C8A6B;
+}
+
+/* ---------- Base ---------- */
+body {
+  background-color: var(--void) !important;
+  color: var(--text-main) !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
+}
+
+a { color: var(--green) !important; }
+a:hover { color: #7CFFA3 !important; text-decoration: underline; }
+
+::selection { background: var(--green-mid); color: var(--void); }
+
+/* thin terminal-style scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 0; }
+
+/* ---------- Navbar ---------- */
+nav.navbar, .navbar.bg-dark, header nav {
+  background-color: var(--surface) !important;
+  border-bottom: 1px solid var(--border-dim) !important;
+}
+.navbar-brand, .nav-link {
+  color: var(--text-main) !important;
+  font-weight: 500;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--green) !important;
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary, .btn-outline-primary {
+  background-color: transparent !important;
+  border: 1px solid var(--green) !important;
+  color: var(--green) !important;
+  border-radius: 2px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  text-transform: none;
+  transition: box-shadow .15s ease, background-color .15s ease;
+}
+.btn-primary:hover, .btn-outline-primary:hover {
+  background-color: var(--green) !important;
+  color: var(--void) !important;
+  box-shadow: 0 0 14px rgba(57,255,106,0.55);
+}
+.btn-secondary, .btn-outline-secondary {
+  background-color: transparent !important;
+  border: 1px solid var(--border-mid) !important;
+  color: var(--text-muted) !important;
+  border-radius: 2px !important;
+}
+
+/* ---------- Challenge cards / panels styled as terminal windows ---------- */
+.card, .challenge-button, #challenge-board .challenge-button {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border-dim) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+.card:hover, .challenge-button:hover {
+  border-color: var(--border-mid) !important;
+  box-shadow: 0 0 10px rgba(57,255,106,0.18);
+}
+.card-header {
+  background-color: var(--surface-raised) !important;
+  border-bottom: 1px solid var(--border-dim) !important;
+  color: var(--green) !important;
+}
+
+/* category / value badges */
+.badge, .badge-primary {
+  background-color: var(--surface-raised) !important;
+  color: var(--green) !important;
+  border: 1px solid var(--border-dim);
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+/* ---------- Modals (challenge pop-up, flag submission) ---------- */
+.modal-content {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--border-mid) !important;
+  color: var(--text-main) !important;
+}
+.modal-header, .modal-footer {
+  border-color: var(--border-dim) !important;
+}
+
+/* ---------- Forms ---------- */
+.form-control, input, textarea, select {
+  background-color: var(--void) !important;
+  border: 1px solid var(--border-dim) !important;
+  color: var(--text-main) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  border-radius: 2px !important;
+}
+.form-control:focus, input:focus, textarea:focus {
+  border-color: var(--green) !important;
+  box-shadow: 0 0 6px rgba(57,255,106,0.35) !important;
+}
+
+/* ---------- Flag feedback (restrained use of red/green glow) ---------- */
+.alert-success {
+  background-color: rgba(57,255,106,0.08) !important;
+  border: 1px solid var(--green) !important;
+  color: var(--green) !important;
+}
+.alert-danger {
+  background-color: rgba(255,77,77,0.08) !important;
+  border: 1px solid var(--red-alert) !important;
+  color: var(--red-alert) !important;
+}
+
+/* ---------- Tables (scoreboard / submissions) ---------- */
+table, .table {
+  background-color: var(--surface) !important;
+  color: var(--text-main) !important;
+}
+.table thead th {
+  background-color: var(--surface-raised) !important;
+  color: var(--green) !important;
+  border-bottom: 1px solid var(--border-mid) !important;
+}
+.table td, .table th { border-color: var(--border-dim) !important; }
+.table-hover tbody tr:hover {
+  background-color: rgba(57,255,106,0.06) !important;
+}
+
+/* ---------- Code blocks inside challenge descriptions ---------- */
+pre, code {
+  background-color: var(--void) !important;
+  color: var(--green) !important;
+  border: 1px solid var(--border-dim);
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+/* ---------- Footer ---------- */
+footer, #footer {
+  background-color: var(--surface) !important;
+  color: var(--text-muted) !important;
+  border-top: 1px solid var(--border-dim) !important;
+}
+</style>
+
+/* ===== Challenges: sideways grid ===== */
+div:has(> div > .category-header) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+.category-challenges [class*="col-"] {
+  flex: 0 0 100%;
+  max-width: 100%;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+.challenge-button {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  height: auto !important;
+}
+.challenge-desc {
+  display: block;
+  margin-top: .7rem;
+  padding: 0 1rem;
+  font-size: .8rem;
+  line-height: 1.45;
+  opacity: .75;
+  text-align: center;
+}
