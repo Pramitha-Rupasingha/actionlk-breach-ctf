@@ -1,0 +1,17 @@
+listen=YES
+listen_ipv6=NO
+anonymous_enable=NO
+local_enable=YES
+write_enable=NO
+dirmessage_enable=YES
+chroot_local_user=YES
+secure_chroot_dir=/var/run/vsftpd/empty
+pam_service_name=vsftpd
+seccomp_sandbox=NO
+
+# Passive mode — required because the FTP client (Kali) sits outside the
+# Docker host and cannot reach the container's internal IP directly.
+pasv_enable=YES
+pasv_min_port=21100
+pasv_max_port=21110
+pasv_address=${PASV_ADDRESS}
